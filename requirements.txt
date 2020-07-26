@@ -212,7 +212,6 @@ pyflakes==2.1.1
 Pygments==2.6.1
 PyHamcrest==2.0.0
 pylint==2.4.2
-pyodbc==4.0.27
 pyOpenSSL==19.0.0
 pyparsing==2.4.2
 pyrsistent==0.15.4
