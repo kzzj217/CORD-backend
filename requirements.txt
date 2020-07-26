@@ -46,7 +46,6 @@ cffi==1.12.3
 cfn-lint==0.30.1
 chardet==3.0.4
 Click==7.0
-clyent==1.2.2
 colorama==0.4.1
 colorful==0.5.1
 configparser==5.0.0
