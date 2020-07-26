@@ -301,7 +301,6 @@ tblib==1.4.0
 tensorboardX==1.8
 terminado==0.8.2
 testpath==0.4.2
-thinc==6.12.1
 tokenizers==0.7.0
 toml==0.10.0
 toolz==0.10.0
