@@ -1,38 +1,61 @@
 from pydantic import BaseModel
-from typing import List
-"""
-class Author(BaseModel):
-    first: str
-    middle: List[str]
-    last: str
-    suffix: str
-    email: str
-    affiliation: str
+from typing import List, Dict, Tuple
 
-class BodyText(BaseModel):
-    paper_id: str
-    content: str
-
-class Citation(BaseModel):
-    paper_id: str
-    content: str
-"""
-class Answer(BaseModel):
-    doi: str
-    doc_score: str
-    doc_date: str
-    title: str
-    sents: List[str]
+class AbstractTag(BaseModel):
+    sciwing: List[str]
 
 class Abstract(BaseModel):
-    doi: str
-    paper_id: str
-    title: str
-    authors: List[str]
     text: List[str]
-    sciwingTags: List[str]
+    tags: AbstractTag
 
-class Paper(BaseModel):
+class BioNerTag(BaseModel):
+    sciwingI2B2: Dict[str, str]
+
+class SectionHeader(BaseModel):
+    original: List[str]
+    generic: List[str]
+
+class BodyText(BaseModel):
+    section_header: SectionHeader
+    text: List[str]
+    tags: BioNerTag
+
+class Answer(BaseModel):
+    score: str
+    sents: List[str]
+
+# TODO: side column to show similar paper
+class PaperInfo(BaseModel):
+    paper_id: str
+    doi: str
+    title: str
+    doc_date: str
+    authors: List[str]
+    summary: str
     abstract: Abstract
-    body_text: str
- #   citation: List[Citation]
+    bodyText: BodyText
+    url: str
+
+class GeneralAns(BaseModel):
+    answer: Answer
+    paper_id: str
+    doi: str
+    title: str
+    doc_date: str
+    authors: List[str]
+    summary: str
+    abstract: Abstract
+    bodyText: BodyText
+    url: str
+
+    #   citation: List[Citation]
+class GraphUnit(BaseModel):
+    num: int
+    articles: List[PaperInfo]
+
+class Graph(BaseModel):
+    Xtype: str
+    Ytype: str
+    Xaxis: List[str]
+    Yaxis: List[str]
+    values: Dict[str , GraphUnit]

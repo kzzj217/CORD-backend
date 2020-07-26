@@ -5,11 +5,12 @@ import pickle
 from utils import search_result_retrieval, const, conversion
 import json
 from starlette.middleware.cors import CORSMiddleware
+import random
 
 origins = [
     "http://localhost",
     "http://localhost:3000",
-    "http://localhost:8000",
+    "http://3.17.70.182",
     "http://192.168.1.132/",
 	'http://192.168.2.121/'
 ]
@@ -24,41 +25,79 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+print("LOADING database...")
+#database = pickle.load(open(const.DB_CACHE, 'rb'))
+#database = pickle.load(open(const.DB_SAMPLE_CACHE, 'rb'))
+print("LOADING db_abstags...")
+#db_abstags = json.load(open(const.ABSTAG_JSON_CACHE, 'r'))
+print("LOADING bodytext I2B2 NER...")
+#db_i2b2ner = json.load(open(const.SciwingI2B2_NER_CACHE, 'r'))
+print("LOADING similar papers...")
+#db_similarpapers = pickle.load(open(const.SIMILAR_CACHE, 'rb'))
+print("LOADING generic headers...")
+#db_genericheader = json.load(open(const.GenericHeader_JSON_CACHE, 'r'))
 
-database = pickle.load(open(const.DB_SAMPLE_CACHE, 'rb'))
-abstags = json.load(open(const.ABSTAG_JSON_CACHE, 'rb'))
-
-@app.get("/answer/", response_model=List[Answer])
+@app.get("/answer/", response_model=List[GeneralAns])
 def answer_query(query: str, limit = 20):
     ans = search_result_retrieval.retrieve_answer(query, const.ANS_CACHE_ROOT)
     print("Retrieve answers successfully.")
-    ans = conversion.to_ans(ans)
-    return ans
+    result = []
+    filtered_ans = search_result_retrieval.combine(ans)
+    for note in filtered_ans:
+        doi = note["doi"]
+        # TODO: doi could be empty
+        idx = database.loc[database['doi'] == doi].index
+        if len(idx) is 0:
+            print("ERROR: no corresponding DOI: ", doi, "Skip this answer")
+            continue
 
-@app.get("/answer/abstract", response_model=Abstract)
-def expand_abs(doi: str):
-    # dummy doi
-    doi = "10.1292/jvms.13-0518"
-    row = database.loc[database['doi'] == doi]
-    # TODO: ensure the existence
-    tags = abstags[row["paper_id"].values[0]]
-    abs = conversion.to_abstract(row, tags)
-    return abs
+        row = database.iloc[idx[0]]
+        # TODO: abstag use both doi and paper id
+        if not row["paper_id"] or row["paper_id"] not in db_abstags:
+            abstags = {"sciwing": [""]*len(row["abstract"])}
+        else:
+            abstags = db_abstags[row["paper_id"]]
 
-@app.get("/answer/paper/{paper_id}", response_model=Paper)
-def read_paper(paper_id: str):
-    paper = database.loc[database['paper_id']==paper_id]
-    return {"paper_id": paper_id,
-            "title": "what is covid-19",
-            "author": "Jack",
-            "abstract": str(paper['abstract'].values),
-            "body_text": str(paper['body_text'].values)}
+        if not row["paper_id"] or row["paper_id"] not in db_i2b2ner:
+            i2b2tags = {"sciwingI2B2": {}}
+        else:
+            i2b2tags = db_i2b2ner[row["paper_id"]]
 
-@app.get("/display", response_model=List[Paper])
-def display():
-    print("CALL FROM FRONTEND")
-    #print(type(json.load(open(all_json[0], "rb"))))
-    #return json.load(open(all_json[0], "rb"))
+        if not row["paper_id"] or row["paper_id"] not in db_genericheader:
+            genericHeader = [""]*len(row["body_text"])
+        else:
+            genericHeader = db_genericheader[row["paper_id"]]
+
+        result.append(conversion.to_general_ans(note, row, abstags, i2b2tags, genericHeader))
+    return result
+
+@app.get("/compare/{x}+{y}", response_model=Graph)
+def get_graph(x: str, y: str):
+    # TODO:change stub
+    db_abstags = []
+    Xaxis = ["RiskFactor1", "RF2", "RF3"]
+    Yaxis = ["TimeInterval1", "TI2", "TI3"]
+    values = dict()
+    for x in Xaxis:
+        for y in Yaxis:
+            values[(x, y)] = database.sample(n=int(random.random()*len(database)))
+
+    # include all tags
+    res = conversion.to_graph(x, y, Xaxis, Yaxis, values, db_abstags)
+    return res
+
+@app.get("/answer/{paper_id}", response_model=List[PaperInfo])
+def get_similar_articles(paper_id: str):
+    print("check similar papers")
+    if paper_id in db_similarpapers.keys():
+        similars = db_similarpapers[paper_id]
+
+    else:
+        similars = None
+
+    return conversion.to_similar(similars, db_abstags, db_i2b2ner, db_genericheader)
+
+
 
 
 if __name__ == "__main__":

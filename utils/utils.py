@@ -23,7 +23,8 @@ class FileReader:
 
             # Body Text
             for entry in content['body_text']:
-                self.body_text.append((entry['section'], entry['text']))
+                self.body_text.append(entry['text'])
+            self.body_text = '\n'.join(self.body_text)
             # Extend Here
             #
             #
@@ -41,10 +42,8 @@ def load_metadata(db_root):
     print(meta_df.head())
     return meta_df
 
-
 def load_dataframe(all_json, df_meta):
-    dict_ = {'paper_id': [], 'doi': [], 'cord_uid': [], 'doc_date': [], 'url': [], 'title': [], "authors": [],
-             'abstract': [], 'body_text': []}
+    dict_ = {'paper_id': [], 'doi':[], 'cord_uid': [], 'title': [], "authors": [], 'abstract': [], 'body_text': []}
 
     for idx, entry in tqdm(enumerate(all_json)):
         if idx % (len(all_json) // 1) == 0:
@@ -56,31 +55,24 @@ def load_dataframe(all_json, df_meta):
         dict_['title'].append(content.title)
         dict_['authors'].append(content.authors)
 
-        idx = df_meta.loc[df_meta['pmcid'] == content.paper_id].index
-        if len(idx) is 0:
+        row = df_meta.loc[df_meta['pmcid'] == content.paper_id]
+        if len(row["doi"].values) is 0:
             print("ERROR: no corresponding DOI: ", content.paper_id, "\nUse sha instead")
-            idx = df_meta.loc[df_meta['sha'] == content.paper_id].index
+            row = df_meta.loc[df_meta['sha'] == content.paper_id]
 
-        if len(idx) is 1:
-            row = df_meta.iloc[idx[0]]
-            dict_['doi'].append(row["doi"])
-            dict_['cord_uid'].append(row['cord_uid'])
-            dict_['doc_date'].append(row['publish_time'])
-            dict_['url'].append(row['url'])
-        else:
+        if len(row["doi"].values) is 0:
             dict_['doi'].append("")
+        else:
+            dict_['doi'].append(row["doi"].values[0])
+
+        if len(row['cord_uid'].values) is not 0:
+            dict_['cord_uid'].append(row['cord_uid'].values[0])
+        else:
+            print("ERROR: no corresponding CORD_UID: ", content.paper_id)
             dict_['cord_uid'].append("")
-            dict_["doc_date"].append("")
-            dict_['url'].append("")
 
     # df_covid = pd.DataFrame(dict_, columns=['paper_id', 'abstract', 'body_text'])
-    try:
-        df_covid = pd.DataFrame(dict_,
-                            columns=['paper_id', 'doi', 'cord_uid', 'title', 'url', 'doc_date', 'authors', 'abstract',
-                                    'body_text', ])
-    except Exception:
-        print("Error occured when making dataframe")
-        import pdb;pdb.set_trace()
+    df_covid = pd.DataFrame(dict_, columns=['paper_id', 'doi', 'cord_uid', 'title', 'authors', 'abstract', 'body_text',])
     return df_covid
 
 def create_folder(root):
