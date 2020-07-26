@@ -37,7 +37,6 @@ colorama==0.4.3
 colorful==0.5.1
 configparser==5.0.0
 conllu==0.11
-cord19==0.4.0
 cryptography==2.9.2
 cycler==0.10.0
 cymem==2.0.3
