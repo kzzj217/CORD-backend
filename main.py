@@ -110,6 +110,7 @@ def load_data():
         'data': presigned_post,
         'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
     })
+    print("GET DATA", len(database))
 
 if __name__ == "__main__":
     load_data()
