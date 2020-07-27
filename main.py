@@ -91,12 +91,16 @@ def load_data():
     print("LOAD DATABASE FROM AWS S3 SYSTEM...")
     S3_BUCKET = os.environ.get("S3_BUCKET")
     print("S3 bucket", S3_BUCKET)
-    s3 = boto3.client('s3')
 
+    s3 = boto3.resource('r3')
+    with open("database.pkl", "rb") as data:
+        dababase = s3.Bucket('wingnuscord19').download_fileobj("database.pkl", data)
+
+    return dababase
+"""
+    s3 = boto3.client('s3')
     file_name = "database.pkl"
     file_type = "application/octet-stream"
-    #response = s3.get_object(BUCKET="BUCKET", key='Key')
-    #database = pickle.dump(io.BytesIO(response['Body'].read()))
 
     presigned_post = s3.generate_presigned_post(
         Bucket=S3_BUCKET,
@@ -106,7 +110,7 @@ def load_data():
             {"acl": "public-read"},
             """{"Content-Type": file_type}"""
         ],
-        ExpiresIn=3600
+        ExpiresIn=7200
     )
 
     database = pickle.dumps({
@@ -115,6 +119,7 @@ def load_data():
     })
 
     return database
+"""
 
 if __name__ == "__main__":
     database = load_data()
