@@ -97,8 +97,7 @@ def get_similar_articles(paper_id: str):
 
     return conversion.to_similar(similars, db_abstags, db_i2b2ner, db_genericheader)
 
-
-
-
+import os
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=8000, reload=True)
+    port = int(os.environ.get('PORT', 8000))
+    uvicorn.run("main:app", port=port, host='0.0.0.0', reload=True)
