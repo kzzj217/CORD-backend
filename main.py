@@ -1,9 +1,9 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile
 from schemas import *
 import pickle
 from utils import search_result_retrieval, const, conversion
-import json
+import os, json, boto3
 from starlette.middleware.cors import CORSMiddleware
 import random
 
@@ -36,6 +36,9 @@ print("LOADING similar papers...")
 #db_similarpapers = pickle.load(open(const.SIMILAR_CACHE, 'rb'))
 print("LOADING generic headers...")
 #db_genericheader = json.load(open(const.GenericHeader_JSON_CACHE, 'r'))
+database, db_abstags, db_i2b2ner, db_similarpapers, db_genericheader = None, None, None, None, None
+
+
 
 @app.get("/answer/", response_model=List[GeneralAns])
 def answer_query(query: str, limit = 20):
@@ -97,7 +100,32 @@ def get_similar_articles(paper_id: str):
 
     return conversion.to_similar(similars, db_abstags, db_i2b2ner, db_genericheader)
 
-import os
+def load_data():
+    print("LOAD DATABASE FROM AWS S3 SYSTEM...")
+    S3_BUCKET = os.environ.get("S3_BUCKET")
+    print("S3 bucket", S3_BUCKET)
+    s3 = boto3.client('s3')
+
+    file_name = "database.pkl"
+    file_type = "application/octet-stream"
+    presigned_post = s3.generate_presigned_post(
+        Bucket=S3_BUCKET,
+        Key=file_name,
+        Fields={"acl": "public-read", "Content-Type": file_type},
+        Conditions=[
+            {"acl": "public-read"},
+            {"Content-Type": file_type}
+        ],
+        ExpiresIn=3600
+    )
+
+    database = pickle.dumps({
+        'data': presigned_post,
+        'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+    })
+
 if __name__ == "__main__":
+    load_data()
+    print("database", len(database), type(database))
     port = int(os.environ.get('PORT', 5000))
     uvicorn.run("main:app", port=port, host='0.0.0.0', reload=True, log_level="info")
