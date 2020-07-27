@@ -3,9 +3,10 @@ from fastapi import FastAPI, UploadFile
 from schemas import *
 import pickle
 from utils import search_result_retrieval, const, conversion
-import os, io, json, boto3
+import os, json, boto3
 from starlette.middleware.cors import CORSMiddleware
 import random
+from io import BytesIO
 
 origins = [
     "http://localhost",
@@ -93,10 +94,13 @@ def load_data():
     print("S3 bucket", S3_BUCKET)
 
     s3 = boto3.resource('s3')
-    with open("database.pkl", "rb") as data:
-        dababase = s3.Bucket('wingnuscord19').download_fileobj("database.pkl", data)
+    with BytesIO() as data:
+        s3.Bucket('wingnuscord19').download_fileobj("database.pkl", data)
+        data.seek(0)
+        database = pickle.load(data)
+        return database
 
-    return dababase
+    return None
 """
     s3 = boto3.client('s3')
     file_name = "database.pkl"
