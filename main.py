@@ -3,7 +3,7 @@ from fastapi import FastAPI, UploadFile
 from schemas import *
 import pickle
 from utils import search_result_retrieval, const, conversion
-import os, json, boto3
+import os, io, json, boto3
 from starlette.middleware.cors import CORSMiddleware
 import random
 
@@ -95,6 +95,11 @@ def load_data():
 
     file_name = "database.pkl"
     file_type = "application/octet-stream"
+    response = s3.get_object(S3_BUCKET=S3_BUCKET)
+    database = pickle.dump(io.BytesIO(response['Body'].read()))
+
+    return database
+"""
     presigned_post = s3.generate_presigned_post(
         Bucket=S3_BUCKET,
         Key=file_name,
@@ -110,7 +115,7 @@ def load_data():
         'data': presigned_post,
         'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
     })
-    return database
+"""
 
 if __name__ == "__main__":
     database = load_data()
