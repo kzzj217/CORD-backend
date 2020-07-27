@@ -95,27 +95,26 @@ def load_data():
 
     file_name = "database.pkl"
     file_type = "application/octet-stream"
-    response = s3.get_object(BUCKET="BUCKET", key='Key')
-    database = pickle.dump(io.BytesIO(response['Body'].read()))
+    #response = s3.get_object(BUCKET="BUCKET", key='Key')
+    #database = pickle.dump(io.BytesIO(response['Body'].read()))
 
-    return database
-"""
     presigned_post = s3.generate_presigned_post(
         Bucket=S3_BUCKET,
         Key=file_name,
         Fields={"acl": "public-read", "Content-Type": file_type},
         Conditions=[
             {"acl": "public-read"},
-            {"Content-Type": file_type}
+            """{"Content-Type": file_type}"""
         ],
         ExpiresIn=3600
     )
 
-    database: str = pickle.dumps({
+    database = pickle.dumps({
         'data': presigned_post,
         'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
     })
-"""
+
+    return database
 
 if __name__ == "__main__":
     database = load_data()
