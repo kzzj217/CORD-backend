@@ -100,4 +100,4 @@ def get_similar_articles(paper_id: str):
 import os
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
-    uvicorn.run("main:app", port=port, host='180.129.116.124', reload=True, log_level="info")
+    uvicorn.run("main:app", port=port, host='0.0.0.0', reload=True, log_level="info")
