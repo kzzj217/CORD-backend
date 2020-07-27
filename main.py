@@ -92,7 +92,7 @@ def load_data():
     S3_BUCKET = os.environ.get("S3_BUCKET")
     print("S3 bucket", S3_BUCKET)
 
-    s3 = boto3.resource('r3')
+    s3 = boto3.resource('s3')
     with open("database.pkl", "rb") as data:
         dababase = s3.Bucket('wingnuscord19').download_fileobj("database.pkl", data)
 
