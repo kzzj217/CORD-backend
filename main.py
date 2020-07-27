@@ -95,7 +95,7 @@ def load_data():
 
     file_name = "database.pkl"
     file_type = "application/octet-stream"
-    response = s3.get_object(BUCKET=S3_BUCKET, key='database.pkl')
+    response = s3.get_object(BUCKET="BUCKET", key='Key')
     database = pickle.dump(io.BytesIO(response['Body'].read()))
 
     return database
