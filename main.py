@@ -106,7 +106,7 @@ def load_data():
         ExpiresIn=3600
     )
 
-    database = pickle.dumps({
+    database: str = pickle.dumps({
         'data': presigned_post,
         'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
     })
