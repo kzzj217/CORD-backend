@@ -108,7 +108,7 @@ def load_data():
         Fields={"acl": "public-read", "Content-Type": file_type},
         Conditions=[
             {"acl": "public-read"},
-            """{"Content-Type": file_type}"""
+            {"Content-Type": file_type},
         ],
         ExpiresIn=7200
     )
