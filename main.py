@@ -25,7 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-database, db_abstags, db_i2b2ner, db_similarpapers, db_genericheader = None, None, None, None, None
+#database, db_abstags, db_i2b2ner, db_similarpapers, db_genericheader = None, None, None, None, None
 
 @app.get("/answer/", response_model=List[GeneralAns])
 def answer_query(query: str, limit = 20):
@@ -110,10 +110,10 @@ def load_data():
         'data': presigned_post,
         'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
     })
-    print("GET DATA", len(database))
+    return database
 
 if __name__ == "__main__":
-    load_data()
+    database = load_data()
     print("database", len(database), type(database))
     port = int(os.environ.get('PORT', 5000))
     uvicorn.run("main:app", port=port, host='0.0.0.0', reload=True, log_level="info")
