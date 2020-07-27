@@ -25,20 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-print("LOADING database...")
-#database = pickle.load(open(const.DB_CACHE, 'rb'))
-#database = pickle.load(open(const.DB_SAMPLE_CACHE, 'rb'))
-print("LOADING db_abstags...")
-#db_abstags = json.load(open(const.ABSTAG_JSON_CACHE, 'r'))
-print("LOADING bodytext I2B2 NER...")
-#db_i2b2ner = json.load(open(const.SciwingI2B2_NER_CACHE, 'r'))
-print("LOADING similar papers...")
-#db_similarpapers = pickle.load(open(const.SIMILAR_CACHE, 'rb'))
-print("LOADING generic headers...")
-#db_genericheader = json.load(open(const.GenericHeader_JSON_CACHE, 'r'))
 database, db_abstags, db_i2b2ner, db_similarpapers, db_genericheader = None, None, None, None, None
-
-
 
 @app.get("/answer/", response_model=List[GeneralAns])
 def answer_query(query: str, limit = 20):
