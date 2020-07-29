@@ -32,22 +32,22 @@ def load_data():
     with BytesIO() as data:
         s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_ABSTAG_CACHE, data)
         data.seek(0)
-        db_abstags = pickle.load(data)
+        db_abstags = json.load(data)
 
     with BytesIO() as data:
         s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_GE_CACHE, data)
         data.seek(0)
-        db_genericheader = pickle.load(data)
+        db_genericheader = json.load(data)
 
     with BytesIO() as data:
         s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_I2B2_NER_CACHE, data)
         data.seek(0)
-        db_i2b2ner = pickle.load(data)
+        db_i2b2ner = json.load(data)
 
     with BytesIO() as data:
         s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_SIMILAR_CACHE, data)
         data.seek(0)
-        db_similarpapers = pickle.load(data)
+        db_similarpapers = json.load(data)
 
     return database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers
 
