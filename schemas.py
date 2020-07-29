@@ -24,6 +24,7 @@ class BodyText(BaseModel):
 class Answer(BaseModel):
     score: str
     sents: List[str]
+    sent_section: List[str]
 
 # TODO: side column to show similar paper
 class PaperInfo(BaseModel):
@@ -59,4 +60,5 @@ class Graph(BaseModel):
     Ytype: str
     Xaxis: List[str]
     Yaxis: List[str]
+    numbers:List[List[int]]
     values: Dict[str , GraphUnit]

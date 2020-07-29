@@ -52,14 +52,15 @@ def load_data():
     return database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers
 
 
-database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers = load_data()
-"""
+#database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers = load_data()
+
 database = pickle.load(open(const.DEMO_DB_CACHE, 'rb'))
 db_abstags = json.load(open(const.DEMO_ABSTAG_CACHE, 'r'))
 db_genericheader = json.load(open(const.DEMO_GE_CACHE, 'r'))
 db_i2b2ner = json.load(open(const.DEMO_I2B2_NER_CACHE, 'r'))
 db_similarpapers = json.load(open(const.DEMO_SIMILAR_CACHE, 'r'))
-"""
+db_graph = json.load(open(const.DEMO_GRAPH_CACHE, 'r'))
+
 
 @app.get("/answer/", response_model=List[GeneralAns])
 def answer_query(query: str, limit = 20):
@@ -97,17 +98,7 @@ def answer_query(query: str, limit = 20):
 
 @app.get("/compare/{x}+{y}", response_model=Graph)
 def get_graph(x: str, y: str):
-    # TODO:change stub
-    db_abstags = []
-    Xaxis = ["RiskFactor1", "RF2", "RF3"]
-    Yaxis = ["TimeInterval1", "TI2", "TI3"]
-    values = dict()
-    for x in Xaxis:
-        for y in Yaxis:
-            values[(x, y)] = database.sample(n=int(random.random()*len(database)))
-
-    # include all tags
-    res = conversion.to_graph(x, y, Xaxis, Yaxis, values, db_abstags)
+    res = conversion.to_graph(database, db_graph['+'.join([x,y])], db_abstags, db_i2b2ner, db_genericheader)
     return res
 
 @app.get("/similar/{paper_id}", response_model=List[PaperInfo])
