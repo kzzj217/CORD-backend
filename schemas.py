@@ -3,6 +3,7 @@ from typing import List, Dict, Tuple
 
 class AbstractTag(BaseModel):
     sciwing: List[str]
+    coda19: List[str]
 
 class Abstract(BaseModel):
     text: List[str]

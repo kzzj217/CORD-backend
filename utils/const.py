@@ -1,22 +1,30 @@
 import os.path as osp
-#root = "/diskC/Kong211/work/CORD-19/"
+
 root = "/Users/zijinkong/Desktop/Covid-19/CORD-19/"
+ABSTAG_METHOD = ["sciwing", "coda19"]
+
+DEMO_DB_CACHE = osp.join(root, "./database/demo_db.pkl")
+DEMO_ABSTAG_CACHE = osp.join(root, "./database/demo_abstags.json")
+DEMO_GE_CACHE = osp.join(root, "./database/demo_ge.json")
+DEMO_I2B2_NER_CACHE = osp.join(root, "./database/demo_i2b2ner.json")
+DEMO_SIMILAR_CACHE = osp.join(root, "./database/demo_similar.json")
 
 root_path = osp.join(root, '../CORD-19-research-challenge')
 ANS_CACHE_ROOT = osp.join(root, "./database/ans_cache")
 
 DB_CACHE = osp.join(root, "./database/database.pkl")
-DB_SAMPLE_CACHE = osp.join(root, "./database/sample.pkl")
-
-ABSTAG_JSON_CACHE = osp.join(root, "./database/abstag.json")
-ABSTAG_METHOD = ["sciwing"]
-
+ABSTAG_JSON_CACHE = osp.join(root, "./database/abstags.json")
 GenericHeader_JSON_CACHE = osp.join(root, "./database/generic_headers.json")
-
 SciwingI2B2_NER_CACHE = osp.join(root, "./database/i2b2ner.json")
-
-SIMILAR_SAMPLE_CACHE = osp.join(root, "./database/similar_sample.pkl")
-SIMILAR_CACHE = osp.join(root, "./database/similar_processed.pkl")
+SIMILAR_CACHE = osp.join(root, "./database/similar.pkl")
 
 XTYPEs = ["Date"]
 YTYPEs = ["Risk Factor"]
+
+"""
+DEMO_DB_CACHE = "demo_db.pkl"
+DEMO_ABSTAG_CACHE = "demo_abstags.json"
+DEMO_GE_CACHE = "demo_ge.json"
+DEMO_I2B2_NER_CACHE = "demo_i2b2ner.json"
+DEMO_SIMILAR_CACHE = "demo_similar.json"
+"""

@@ -3,30 +3,63 @@ from fastapi import FastAPI, UploadFile
 from schemas import *
 import pickle
 from utils import search_result_retrieval, const, conversion
-import os, json, boto3
+import os, boto3
 from starlette.middleware.cors import CORSMiddleware
 import random
 from io import BytesIO
-
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://3.17.70.182",
-    "http://192.168.1.132/",
-	'http://192.168.2.121/'
-]
+import json
 
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-#database, db_abstags, db_i2b2ner, db_similarpapers, db_genericheader = None, None, None, None, None
+def load_data():
+    print("LOAD DATABASE FROM AWS S3 SYSTEM...")
+    S3_BUCKET = os.environ.get("S3_BUCKET")
+    print("S3 bucket", S3_BUCKET)
+
+    s3 = boto3.resource('s3')
+    with BytesIO() as data:
+        s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_DB_CACHE, data)
+        data.seek(0)
+        database = pickle.load(data)
+
+    with BytesIO() as data:
+        s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_ABSTAG_CACHE, data)
+        data.seek(0)
+        db_abstags = pickle.load(data)
+
+    with BytesIO() as data:
+        s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_GE_CACHE, data)
+        data.seek(0)
+        db_genericheader = pickle.load(data)
+
+    with BytesIO() as data:
+        s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_I2B2_NER_CACHE, data)
+        data.seek(0)
+        db_i2b2ner = pickle.load(data)
+
+    with BytesIO() as data:
+        s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_SIMILAR_CACHE, data)
+        data.seek(0)
+        db_similarpapers = pickle.load(data)
+
+    return database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers
+
+
+database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers = load_data()
+"""
+database = pickle.load(open(const.DEMO_DB_CACHE, 'rb'))
+db_abstags = json.load(open(const.DEMO_ABSTAG_CACHE, 'r'))
+db_genericheader = json.load(open(const.DEMO_GE_CACHE, 'r'))
+db_i2b2ner = json.load(open(const.DEMO_I2B2_NER_CACHE, 'r'))
+db_similarpapers = json.load(open(const.DEMO_SIMILAR_CACHE, 'r'))
+"""
 
 @app.get("/answer/", response_model=List[GeneralAns])
 def answer_query(query: str, limit = 20):
@@ -77,7 +110,7 @@ def get_graph(x: str, y: str):
     res = conversion.to_graph(x, y, Xaxis, Yaxis, values, db_abstags)
     return res
 
-@app.get("/answer/{paper_id}", response_model=List[PaperInfo])
+@app.get("/similar/{paper_id}", response_model=List[PaperInfo])
 def get_similar_articles(paper_id: str):
     print("check similar papers")
     if paper_id in db_similarpapers.keys():
@@ -86,47 +119,8 @@ def get_similar_articles(paper_id: str):
     else:
         similars = None
 
-    return conversion.to_similar(similars, db_abstags, db_i2b2ner, db_genericheader)
-
-def load_data():
-    print("LOAD DATABASE FROM AWS S3 SYSTEM...")
-    S3_BUCKET = os.environ.get("S3_BUCKET")
-    print("S3 bucket", S3_BUCKET)
-
-    s3 = boto3.resource('s3')
-    with BytesIO() as data:
-        s3.Bucket('wingnuscord19').download_fileobj("database.pkl", data)
-        data.seek(0)
-        database = pickle.load(data)
-        return database
-
-    return None
-"""
-    s3 = boto3.client('s3')
-    file_name = "database.pkl"
-    file_type = "application/octet-stream"
-
-    presigned_post = s3.generate_presigned_post(
-        Bucket=S3_BUCKET,
-        Key=file_name,
-        Fields={"acl": "public-read", "Content-Type": file_type},
-        Conditions=[
-            {"acl": "public-read"},
-            {"Content-Type": file_type},
-        ],
-        ExpiresIn=7200
-    )
-
-    database = pickle.dumps({
-        'data': presigned_post,
-        'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
-    })
-
-    return database
-"""
+    return conversion.to_similar(database, similars, db_abstags, db_i2b2ner, db_genericheader)
 
 if __name__ == "__main__":
-    database = load_data()
-    print("database", len(database), type(database))
     port = int(os.environ.get('PORT', 5000))
     uvicorn.run("main:app", port=port, host='0.0.0.0', reload=True, log_level="info")

@@ -1,5 +1,4 @@
-def empty_abstag():
-    return {'sciwing':[]}
+import nltk
 
 def to_ans(ans):
     answers = []
@@ -19,8 +18,7 @@ def to_paper_info(row, abstags, i2b2tags, genericHeader):
     else:
         authors = []
 
-    abstract = [x + "." for x in row['abstract'].split(".")]
-    abstract[-1] = abstract[-1].strip(".")
+    abstract = nltk.tokenize.sent_tokenize(row['abstract'])
 
     return {"paper_id": row["paper_id"],
                 "doi": row["doi"],
@@ -34,7 +32,7 @@ def to_paper_info(row, abstags, i2b2tags, genericHeader):
                                  {"original": [para[0] for para in row["body_text"]],
                                   "generic": genericHeader, },
                              "text": [para[1] for para in row["body_text"]],
-                             "tags": {"sciwingI2B2": {"1, 2": "problem", "2, 3": "treatment"}}},
+                             "tags": i2b2tags},
                 "url": row["url"],
             }
 
@@ -45,8 +43,8 @@ def to_general_ans(ans, row, abstag, i2b2tags, genericHeader):
     else:
         authors = []
 
-    abstract = [x + "." for x in row['abstract'].split(".")]
-    abstract[-1] = abstract[-1].strip(".")
+    abstract = nltk.tokenize.sent_tokenize(row['abstract'])
+
     sents = [sent[1] for sent in ans["sentences"] if type(sent[1]) is str]
     res = {"answer": {"score": ans["doc_score"],
                       "sents": sents,},
@@ -62,13 +60,12 @@ def to_general_ans(ans, row, abstag, i2b2tags, genericHeader):
                                            "generic": genericHeader, #TODO: change to generic section header
                                             },
                         "text": [para[1] for para in row["body_text"]],
-                        "tags": {"sciwingI2B2": {"1, 2": "problem", "2, 3": "treatment"}}
-                        },
+                        "tags": i2b2tags},
            "url": row["url"],
            }
     return res
 
-def to_similar(similars, db_abstags, db_i2b2ner, db_genericheader):
+def to_similar(database, similars, db_abstags, db_i2b2ner, db_genericheader):
     if similars is None:
         return [{"paper_id": "",
                     "doi": "",
@@ -77,7 +74,7 @@ def to_similar(similars, db_abstags, db_i2b2ner, db_genericheader):
                     "authors": [""],
                     "summary": "",
                     "abstract": {"text": [""],
-                                 "tags": {"sciwing": []}},
+                                 "tags": {"sciwing": [], "coda19": []}},
                     "bodyText": {"section_header": {"original": [],
                                            "generic": []}, #TODO: change to generic section header
                                  "text": [""],
@@ -86,10 +83,16 @@ def to_similar(similars, db_abstags, db_i2b2ner, db_genericheader):
                     "url": "",
                     }]
     res = []
-    for idx in range(len(similars)):
-        row = similars.iloc[idx]
+
+    for id in similars:
+        idx = database.loc[database['paper_id']==id].index
+        if len(idx) < 1:
+            continue
+        row = database.iloc[idx[0]]
+        abstract = nltk.tokenize.sent_tokenize(row['abstract'])
         if not row["paper_id"] or row["paper_id"] not in db_abstags:
-            abstags = {"sciwing": [""] * len(row["abstract"])}
+            abstags = {"sciwing": [""] * len(abstract),
+                       "coda19": [""] * len(abstract)}
         else:
             abstags = db_abstags[row["paper_id"]]
 
@@ -103,7 +106,7 @@ def to_similar(similars, db_abstags, db_i2b2ner, db_genericheader):
         else:
             genericHeader = db_genericheader[row["paper_id"]]
 
-        res.append(to_paper_info(similars.iloc[idx], abstags, i2b2tags, genericHeader))
+        res.append(to_paper_info(row, abstags, i2b2tags, genericHeader))
     return res
 
 
@@ -118,17 +121,3 @@ def to_graph(x, y, Xaxis, Yaxis, values, abstag):
             "Xaxis": Xaxis,
             "Yaxis": Yaxis,
             "values": resdict}
-
-"""
-def to_abstract(row, tags):
-    authors = []
-    if len(row["authors"]) > 0:
-        authors = [".".join([author['first'], author['last'][0]]) for author in row["authors"].values[0]]
-    ans = {"doi": row["doi"].values[0] if len(row["doi"]) > 0 else "",
-            "paper_id": row["paper_id"].values[0] if len(row["paper_id"]) > 0 else "",
-            "title": row["title"].values[0] if len(row["title"]) > 0 else "",
-            "authors": authors,
-            "text": row['abstract'].values[0].split(".")[:-1] if len(row["text"]) > 0 else [],
-            "sciwingTags":tags["sciwing"]}
-    return ans
-"""
