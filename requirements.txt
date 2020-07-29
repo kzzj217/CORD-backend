@@ -1,11 +1,13 @@
 boto3==1.14.28
 botocore==1.17.28
 certifi==2020.6.20
+chardet==3.0.4
 click==7.1.2
 docutils==0.15.2
 fastapi==0.60.1
 h11==0.9.0
 httptools==0.1.1
+idna==2.10
 jmespath==0.10.0
 joblib==0.16.0
 nltk==3.5
@@ -16,6 +18,7 @@ pydantic==1.6.1
 python-dateutil==2.8.1
 pytz==2020.1
 regex==2020.7.14
+requests==2.24.0
 s3transfer==0.3.3
 six==1.15.0
 starlette==0.13.6

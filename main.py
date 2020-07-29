@@ -63,7 +63,7 @@ db_similarpapers = json.load(open(const.DEMO_SIMILAR_CACHE, 'r'))
 
 @app.get("/answer/", response_model=List[GeneralAns])
 def answer_query(query: str, limit = 20):
-    ans = search_result_retrieval.retrieve_answer(query, const.ANS_CACHE_ROOT)
+    ans = search_result_retrieval.retrieve_answer(query)
     print("Retrieve answers successfully.")
     result = []
     filtered_ans = search_result_retrieval.combine(ans)

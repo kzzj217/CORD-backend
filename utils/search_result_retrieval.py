@@ -2,13 +2,17 @@ import os
 import os.path as osp
 from utils import file_utils, const
 import json
+import requests
 
-def retrieve_answer(query, root):
-    file_utils.create_folder(root)
-    path = osp.join(root, "answer.json")
-    os.system("curl --header \"Content-Type: application/json\" --request POST --data \'{\"question\" : \"%s\", \"section\" : \"\"}\' http://cslab241.cs.aueb.gr:5000/just_the_json > %s "%(query, path))
+def retrieve_answer(query):
+    headers = {
+        'Content-Type': 'application/json',
+    }
 
-    return json.load(open(path))
+    data = '{\"question\":\"%s\", \"section\":\"\"}'%query
+    response = requests.post('http://cslab241.cs.aueb.gr:5000/just_the_json', headers=headers, data=data)
+
+    return response.json()
 
 def get_answer_dois(articles):
     return [article['doi'] for article in articles]
