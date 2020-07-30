@@ -56,10 +56,10 @@ def load_data():
 
     return database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers, db_graph
 
-
 database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers, db_graph = load_data()
 
 """
+test Ver.
 database = pickle.load(open(const.DEMO_DB_CACHE, 'rb'))
 db_abstags = json.load(open(const.DEMO_ABSTAG_CACHE, 'r'))
 db_genericheader = json.load(open(const.DEMO_GE_CACHE, 'r'))
