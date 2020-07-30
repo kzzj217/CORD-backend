@@ -50,22 +50,28 @@ def load_data():
         db_similarpapers = json.load(data)
 
     with BytesIO() as data:
+        s3.Bucket('wingnuscord19').download_fileobj(const.GRAPH_RISK_FACTOR, data)
+        data.seek(0)
+        graph_risk_factor = json.load(data)
+
+    with BytesIO() as data:
         s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_GRAPH_CACHE, data)
         data.seek(0)
-        db_graph = json.load(data)
+        graph_study_type = json.load(data)
 
-    return database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers, db_graph
+    return database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers, graph_risk_factor, graph_study_type
 
-database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers, db_graph = load_data()
+database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers, graph_risk_factor, graph_study_type = load_data()
 
 """
-
 database = pickle.load(open(const.DEMO_DB_CACHE, 'rb'))
 db_abstags = json.load(open(const.DEMO_ABSTAG_CACHE, 'r'))
 db_genericheader = json.load(open(const.DEMO_GE_CACHE, 'r'))
 db_i2b2ner = json.load(open(const.DEMO_I2B2_NER_CACHE, 'r'))
 db_similarpapers = json.load(open(const.DEMO_SIMILAR_CACHE, 'r'))
 db_graph = json.load(open(const.DEMO_GRAPH_CACHE, 'r'))
+graph_risk_factor = json.load(open(const.GRAPH_RISK_FACTOR, 'r'))
+graph_study_type = json.load(open(const.GRAPH_STUDY_TYPE, 'r'))
 """
 
 @app.get("/answer/", response_model=List[GeneralAns])
@@ -105,8 +111,15 @@ def answer_query(query: str, limit = 20):
 @app.get("/compare/", response_model=Graph)
 def get_graph(y: str):
     x="Publish Time"
+
+    if y == "Study Type":
+        return graph_study_type
+    elif y == "Risk Factor":
+        return graph_risk_factor
+"""
     res = conversion.to_graph(database, db_graph['+'.join([x,y])], db_abstags, db_i2b2ner, db_genericheader)
     return res
+"""
 
 @app.get("/similar/{paper_id}", response_model=List[PaperInfo])
 def get_similar_articles(paper_id: str):
