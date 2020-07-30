@@ -35,12 +35,14 @@ def to_paper_info(row, abstags, i2b2tags, genericHeader):
                 "url": row["url"],
             }
 
-def get_section(sents, abstract, bodytext, originalHeader):
+def get_section(sents, title, abstract, bodytext, originalHeader):
     sent_section = []
     filtered_sents = []
     for sent in sents:
         sent = sent.strip()
         set = False
+        if sent in title:
+            continue
         for text in abstract:
             if sent in text:
                 filtered_sents.append(sent)
@@ -53,7 +55,11 @@ def get_section(sents, abstract, bodytext, originalHeader):
             if sent in text:
                 filtered_sents.append(sent)
                 sent_section.append(originalHeader[idx])
+                set = True
                 break
+        if not set:
+            filtered_sents.append(sent)
+            sent_section.append("")
 
     return filtered_sents, sent_section
 
@@ -70,7 +76,7 @@ def to_general_ans(ans, row, abstag, i2b2tags, genericHeader):
     originalHeader = [para[0] for para in row["body_text"]]
 
     sents = [sent[1] for sent in ans["sentences"] if type(sent[1]) is str]
-    sents, sent_section = get_section(sents, abstract, bodytext, originalHeader)
+    sents, sent_section = get_section(sents, row["title"], abstract, bodytext, originalHeader)
 
     res = {"answer": {"score": ans["doc_score"],
                       "sents": sents,
