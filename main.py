@@ -55,7 +55,7 @@ def load_data():
         graph_risk_factor = json.load(data)
 
     with BytesIO() as data:
-        s3.Bucket('wingnuscord19').download_fileobj(const.DEMO_GRAPH_CACHE, data)
+        s3.Bucket('wingnuscord19').download_fileobj(const.GRAPH_STUDY_TYPE, data)
         data.seek(0)
         graph_study_type = json.load(data)
 
