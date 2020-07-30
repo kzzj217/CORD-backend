@@ -5,7 +5,6 @@ import pickle
 from utils import search_result_retrieval, const, conversion
 import os, boto3
 from starlette.middleware.cors import CORSMiddleware
-import random
 from io import BytesIO
 import json
 
