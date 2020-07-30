@@ -68,7 +68,7 @@ db_abstags = json.load(open(const.DEMO_ABSTAG_CACHE, 'r'))
 db_genericheader = json.load(open(const.DEMO_GE_CACHE, 'r'))
 db_i2b2ner = json.load(open(const.DEMO_I2B2_NER_CACHE, 'r'))
 db_similarpapers = json.load(open(const.DEMO_SIMILAR_CACHE, 'r'))
-db_graph = json.load(open(const.DEMO_GRAPH_CACHE, 'r'))
+#db_graph = json.load(open(const.DEMO_GRAPH_CACHE, 'r'))
 graph_risk_factor = json.load(open(const.GRAPH_RISK_FACTOR, 'r'))
 graph_study_type = json.load(open(const.GRAPH_STUDY_TYPE, 'r'))
 """

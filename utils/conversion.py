@@ -1,4 +1,5 @@
 import nltk
+import numpy as np
 
 def to_ans(ans):
     answers = []
@@ -137,10 +138,17 @@ def to_similar(database, similars, db_abstags, db_i2b2ner, db_genericheader):
 
 
 def to_graph(database, graph, db_abstags, db_i2b2ner, db_genericheader):
+    date2idx = {month: i for i, month in enumerate(graph['Xaxis'])}
+    y2idx = {type:i for i, type in enumerate(graph['Yaxis']) }
+    print(date2idx)
+    print(y2idx)
     for x in graph['Xaxis']:
         for y in graph['Yaxis']:
             temp = []
             paper_ids = graph['values'][','.join([x,y])]['articles']
+            paper_ids = list(set(paper_ids))
+            print("After filtering", len(paper_ids))
+            graph['values'][','.join([x, y])]['num'] = len(paper_ids)
             for id in paper_ids:
                 idx = database.loc[database['paper_id']==id].index
                 if len(idx) < 1:
@@ -165,5 +173,10 @@ def to_graph(database, graph, db_abstags, db_i2b2ner, db_genericheader):
                 temp.append(to_paper_info(row, abstags, i2b2tags, genericHeader))
 
             graph['values'][','.join([x, y])]['articles'] = temp
+
+    graph['numbers'] = np.zeros((len(graph['Yaxis']), len(graph['Xaxis']))).tolist()
+    for x in graph["Xaxis"]:
+        for y in graph["Yaxis"]:
+            graph['numbers'][y2idx[y]][date2idx[x]] = graph['values'][','.join([x,y])]['num']
 
     return graph
