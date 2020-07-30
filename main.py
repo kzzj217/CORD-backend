@@ -103,8 +103,9 @@ def answer_query(query: str, limit = 20):
         result.append(conversion.to_general_ans(note, row, abstags, i2b2tags, genericHeader))
     return result
 
-@app.get("/compare/{x}+{y}", response_model=Graph)
-def get_graph(x: str, y: str):
+@app.get("/compare/", response_model=Graph)
+def get_graph(y: str):
+    x="Publish Time"
     res = conversion.to_graph(database, db_graph['+'.join([x,y])], db_abstags, db_i2b2ner, db_genericheader)
     return res
 
