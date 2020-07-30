@@ -34,19 +34,26 @@ def to_paper_info(row, abstags, i2b2tags, genericHeader):
                 "url": row["url"],
             }
 
-def get_section(sents, bodytext, genericHeader):
+def get_section(sents, abstract, bodytext, originalHeader):
     sent_section = []
     for sent in sents:
         sent = sent.strip()
         set = False
+        for text in abstract:
+            if sent in text:
+                sent_section.append('Abstract')
+                set = True
+                break
+        if set:
+            continue
         for idx, text in enumerate(bodytext):
             if sent in text:
-                sent_section.append(genericHeader[idx])
+                sent_section.append(originalHeader[idx])
                 set = True
                 break
         if not set:
             sent_section.append("")
-    assert(len(sent_section)==len(sents))
+    assert   (len(sent_section)==len(sents))
     return sent_section
 
 
@@ -59,9 +66,10 @@ def to_general_ans(ans, row, abstag, i2b2tags, genericHeader):
 
     abstract = nltk.tokenize.sent_tokenize(row['abstract'])
     bodytext = [para[1] for para in row["body_text"]]
+    originalHeader = [para[0] for para in row["body_text"]]
 
     sents = [sent[1] for sent in ans["sentences"] if type(sent[1]) is str]
-    sent_section = get_section(sents, bodytext, genericHeader)
+    sent_section = get_section(sents, abstract, bodytext, originalHeader)
 
     res = {"answer": {"score": ans["doc_score"],
                       "sents": sents,
@@ -74,7 +82,7 @@ def to_general_ans(ans, row, abstag, i2b2tags, genericHeader):
            "summary": "",
            "abstract": {"text": abstract,
                         "tags": abstag},
-           "bodyText": {"section_header": {"original": [para[0] for para in row["body_text"]],
+           "bodyText": {"section_header": {"original": originalHeader,
                                            "generic": genericHeader, #TODO: change to generic section header
                                             },
                         "text": bodytext,
@@ -135,6 +143,8 @@ def to_graph(database, graph, db_abstags, db_i2b2ner, db_genericheader):
             paper_ids = graph['values'][','.join([x,y])]['articles']
             for id in paper_ids:
                 idx = database.loc[database['paper_id']==id].index
+                if len(idx) < 1:
+                    print(id)
                 row = database.iloc[idx[0]]
 
                 if not row["paper_id"] or row["paper_id"] not in db_abstags:

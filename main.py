@@ -55,11 +55,10 @@ def load_data():
         db_graph = json.load(data)
 
     return database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers, db_graph
-
+"""
 database, db_abstags, db_genericheader, db_i2b2ner, db_similarpapers, db_graph = load_data()
 
 """
-test Ver.
 
 database = pickle.load(open(const.DEMO_DB_CACHE, 'rb'))
 db_abstags = json.load(open(const.DEMO_ABSTAG_CACHE, 'r'))
@@ -67,7 +66,7 @@ db_genericheader = json.load(open(const.DEMO_GE_CACHE, 'r'))
 db_i2b2ner = json.load(open(const.DEMO_I2B2_NER_CACHE, 'r'))
 db_similarpapers = json.load(open(const.DEMO_SIMILAR_CACHE, 'r'))
 db_graph = json.load(open(const.DEMO_GRAPH_CACHE, 'r'))
-"""
+
 
 @app.get("/answer/", response_model=List[GeneralAns])
 def answer_query(query: str, limit = 20):
