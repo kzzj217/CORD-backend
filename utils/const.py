@@ -22,10 +22,11 @@ SIMILAR_CACHE = osp.join(root, "./database/similar.pkl")
 XTYPEs = ["Date"]
 YTYPEs = ["Risk Factor"]
 
-
+"""
 DEMO_DB_CACHE = "demo_db.pkl"
 DEMO_ABSTAG_CACHE = "demo_abstags.json"
 DEMO_GE_CACHE = "demo_ge.json"
 DEMO_I2B2_NER_CACHE = "demo_i2b2ner.json"
 DEMO_SIMILAR_CACHE = "demo_similar.json"
 DEMO_GRAPH_CACHE = "demo_graph.json"
+"""

@@ -46,7 +46,7 @@ def get_section(sents, bodytext, genericHeader):
                 break
         if not set:
             sent_section.append("")
-    assert(len(sent_section)==len(bodytext))
+    assert(len(sent_section)==len(sents))
     return sent_section
 
 
